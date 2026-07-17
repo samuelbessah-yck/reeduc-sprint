@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Rééduc Sprint">
+<title>Rééduc Sprint — 17 août → 16 sept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --noir:#0A0A0A;
+  --blanc:#FFFFFF;
+  --gris-1:#F2F2F2;
+  --gris-2:#D8D8D8;
+  --gris-3:#8A8A8A;
+  --gris-4:#3A3A3A;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--blanc);
+  color:var(--noir);
+  font-family:'Inter',sans-serif;
+  line-height:1.5;
+  padding-bottom:80px;
+}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px}
+
+/* ---------- HEADER ---------- */
+header{border-bottom:3px solid var(--noir);padding:36px 0 28px}
+.eyebrow{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--gris-3)}
+h1{font-family:'Anton',sans-serif;font-size:clamp(38px,7vw,64px);text-transform:uppercase;letter-spacing:.01em;line-height:1;margin-top:8px}
+h1 span{color:var(--blanc);-webkit-text-stroke:2px var(--noir)}
+.sub{font-family:'Space Mono',monospace;font-size:13px;margin-top:12px;color:var(--gris-4)}
+
+/* ---------- PISTE / PROGRESSION ---------- */
+.track{margin:26px 0 6px;position:relative}
+.track-lane{
+  height:44px;border:2px solid var(--noir);position:relative;overflow:hidden;background:var(--blanc);
+}
+.track-lane::after{
+  content:"";position:absolute;top:50%;left:0;right:0;height:0;
+  border-top:2px dashed var(--gris-2);
+}
+.track-fill{
+  position:absolute;top:0;left:0;bottom:0;background:var(--noir);width:0%;
+  transition:width .5s cubic-bezier(.22,1,.36,1);z-index:1;
+}
+.finish{
+  position:absolute;right:0;top:0;bottom:0;width:14px;z-index:2;
+  background:repeating-conic-gradient(var(--noir) 0 25%, var(--blanc) 0 50%) 0 0/7px 7px;
+  border-left:2px solid var(--noir);
+}
+.runner{
+  position:absolute;top:-26px;font-size:20px;transition:left .5s cubic-bezier(.22,1,.36,1);
+  transform:translateX(-50%);z-index:3;
+}
+.track-meta{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:12px;margin-top:8px;color:var(--gris-3)}
+.track-meta b{color:var(--noir)}
+
+/* ---------- LÉGENDE ---------- */
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin:22px 0 8px;font-size:12px;font-family:'Space Mono',monospace}
+.legend div{display:flex;align-items:center;gap:7px}
+.sw{width:13px;height:13px;border:2px solid var(--noir);flex:0 0 auto}
+.sw.full{background:var(--noir)}
+.sw.half{background:linear-gradient(135deg,var(--noir) 50%,var(--blanc) 50%)}
+.sw.empty{background:var(--blanc)}
+
+/* ---------- SEMAINES ---------- */
+.week{margin-top:44px}
+.week-head{
+  display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--noir);padding-bottom:8px;margin-bottom:0;
+  flex-wrap:wrap;
+}
+.week-num{font-family:'Anton',sans-serif;font-size:30px;text-transform:uppercase}
+.week-dates{font-family:'Space Mono',monospace;font-size:13px;color:var(--gris-3)}
+.week-phase{
+  margin-left:auto;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;
+  border:2px solid var(--noir);padding:3px 10px;
+}
+.week-phase.p2{background:var(--noir);color:var(--blanc)}
+
+/* ---------- JOURS ---------- */
+.day{
+  display:grid;grid-template-columns:120px 1fr;border-bottom:1px solid var(--gris-2);
+  padding:16px 0;gap:8px;
+}
+.day.rest{background:var(--gris-1);margin:0 -20px;padding:16px 20px}
+.day-label{display:flex;flex-direction:column;gap:2px}
+.day-name{font-family:'Anton',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:.03em}
+.day-date{font-family:'Space Mono',monospace;font-size:12px;color:var(--gris-3)}
+.day-slot{
+  font-family:'Space Mono',monospace;font-size:10px;margin-top:6px;color:var(--gris-4);
+  border:1px solid var(--gris-2);padding:2px 6px;width:fit-content;
+}
+.tasks{display:flex;flex-direction:column;gap:9px}
+.rest-note{font-size:13px;color:var(--gris-3);font-style:italic;align-self:center}
+
+/* ---------- CHECKBOX ---------- */
+.task{display:flex;align-items:flex-start;gap:12px;cursor:pointer;user-select:none}
+.task input{display:none}
+.box{
+  width:20px;height:20px;border:2px solid var(--noir);flex:0 0 auto;margin-top:1px;
+  display:grid;place-items:center;background:var(--blanc);transition:background .15s;
+}
+.box svg{opacity:0;width:12px;height:12px;transition:opacity .15s}
+.task input:checked + .box{background:var(--noir)}
+.task input:checked + .box svg{opacity:1}
+.task-text{font-size:14px}
+.task input:checked ~ .task-text{color:var(--gris-3);text-decoration:line-through;text-decoration-thickness:1.5px}
+.task-text b{font-weight:600}
+.tag{
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--noir);padding:1px 6px;margin-right:6px;white-space:nowrap;
+}
+.tag.odc{background:var(--noir);color:var(--blanc)}
+
+/* ---------- RÈGLE D'OR ---------- */
+.rule{
+  margin-top:52px;border:3px solid var(--noir);padding:22px 24px;
+}
+.rule h2{font-family:'Anton',sans-serif;font-size:20px;text-transform:uppercase;margin-bottom:8px}
+.rule p{font-size:14px}
+.saving{
+  position:fixed;bottom:16px;right:16px;font-family:'Space Mono',monospace;font-size:11px;
+  background:var(--noir);color:var(--blanc);padding:5px 12px;opacity:0;transition:opacity .3s;pointer-events:none;
+}
+.saving.show{opacity:1}
+@media(max-width:560px){
+  .day{grid-template-columns:1fr}
+  .week-phase{margin-left:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Enthésopathie proximale · biceps fémoral</div>
+  <h1>Rééduc <span>Sprint</span></h1>
+  <div class="sub">17 AOÛT — 16 SEPTEMBRE 2026 · OBJECTIF : JAPON EN PLEINE POSSESSION</div>
+
+  <div class="track">
+    <div class="runner" id="runner" style="left:0%">🏃</div>
+    <div class="track-lane">
+      <div class="track-fill" id="fill"></div>
+      <div class="finish"></div>
+    </div>
+    <div class="track-meta">
+      <span>DÉPART · 17.08</span>
+      <span><b id="count">0</b> / <span id="total">0</span> séances validées</span>
+      <span>ARRIVÉE · 16.09</span>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div><span class="sw empty"></span> À faire</div>
+    <div><span class="sw full"></span> Fait</div>
+    <div><span class="tag odc" style="margin:0">ODC</span>&nbsp;Ondes de choc</div>
+    <div style="color:var(--gris-3)">Lun &amp; Jeu = bureau Paris → repos (sauf kiné)</div>
+  </div>
+</header>
+
+<div id="planning"></div>
+
+<div class="rule">
+  <h2>La règle qui gouverne tout</h2>
+  <p>Douleur ≤ 3/10 pendant l'exercice, et <b>aucune aggravation le lendemain matin</b>. Si le matin suivant c'est pire : redescendre d'un palier et y rester une semaine. Pas de sprint ni de charge max dans les 48 h après une séance d'ondes de choc.</p>
+</div>
+
+</div>
+<div class="saving" id="saving">Enregistré</div>
+
+<script>
+const DATA = [
+ {num:"Semaine 1", dates:"17 → 23 août", phase:"Phase 1 · Charge progressive", p2:false, days:[
+  {name:"Lundi", date:"17.08", rest:true, slot:"Bureau Paris", tasks:[
+    {t:"<b>Ondes de choc — séance 1</b> (kiné midi près du taff, sinon décaler mardi soir)", odc:true}
+  ]},
+  {name:"Mardi", date:"18.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 1</b> — leg curl 4×8 tempo 3-0-3 · RDL amplitude réduite 4×8 · hip thrust 3×10"},
+    {t:"Isométriques : pont fessier jambe tendue 5×30 s (échauffement)"}
+  ]},
+  {name:"Mercredi", date:"19.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>Footing</b> 30 min plat, allure facile, douleur ≤3/10"},
+    {t:"Gainage postérieur 3 tours (planche, side plank, bird dog)"}
+  ]},
+  {name:"Jeudi", date:"20.08", rest:true, slot:"Bureau Paris", tasks:[]},
+  {name:"Vendredi", date:"21.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 2</b> — mêmes exos, +2,5 kg si séance mardi indolore"},
+    {t:"Nordic assisté (élastique) 3×4"}
+  ]},
+  {name:"Samedi", date:"22.08", slot:"Journée libre", tasks:[
+    {t:"<b>Piste</b> — échauffement complet + technique (skips, montées de genoux) + 4 lignes 60 %"},
+    {t:"Isométriques post-séance 3×45 s"}
+  ]},
+  {name:"Dimanche", date:"23.08", slot:"Journée libre", tasks:[
+    {t:"<b>HSR 3 léger</b> — 3×10 à 70 % des charges de mardi"},
+    {t:"Récup active : vélo 30 min ou marche + mobilité hanches 15 min"}
+  ]}
+ ]},
+ {num:"Semaine 2", dates:"24 → 30 août", phase:"Phase 1 · Charge progressive", p2:false, days:[
+  {name:"Lundi", date:"24.08", rest:true, slot:"Bureau Paris", tasks:[
+    {t:"<b>Ondes de choc — séance 2</b>", odc:true}
+  ]},
+  {name:"Mardi", date:"25.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 1</b> — charges +2,5 à 5 kg vs semaine 1 · RDL amplitude complète si indolore"},
+    {t:"Isométriques 5×30 s"}
+  ]},
+  {name:"Mercredi", date:"26.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>Footing</b> 35 min + 4 accélérations progressives 60 m"},
+    {t:"Gainage postérieur 3 tours"}
+  ]},
+  {name:"Jeudi", date:"27.08", rest:true, slot:"Bureau Paris", tasks:[]},
+  {name:"Vendredi", date:"28.08", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 2</b> + Nordic assisté 3×5"}
+  ]},
+  {name:"Samedi", date:"29.08", slot:"Journée libre", tasks:[
+    {t:"<b>Piste</b> — technique + 5 lignes 60-70 %, récup complète entre chaque"},
+    {t:"Isométriques post-séance"}
+  ]},
+  {name:"Dimanche", date:"30.08", slot:"Journée libre", tasks:[
+    {t:"<b>HSR 3 léger</b> + mobilité"},
+    {t:"Récup active 30 min"}
+  ]}
+ ]},
+ {num:"Semaine 3", dates:"31 août → 6 sept", phase:"Transition Phase 1 → 2", p2:false, days:[
+  {name:"Lundi", date:"31.08", rest:true, slot:"Bureau Paris", tasks:[
+    {t:"<b>Ondes de choc — séance 3</b>", odc:true}
+  ]},
+  {name:"Mardi", date:"01.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 1</b> — charges montantes · test Nordic sans élastique 2×3 (arrêt si douleur)"}
+  ]},
+  {name:"Mercredi", date:"02.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>Footing</b> 35 min + 5 lignes 70 %"},
+    {t:"Gainage postérieur"}
+  ]},
+  {name:"Jeudi", date:"03.09", rest:true, slot:"Bureau Paris", tasks:[]},
+  {name:"Vendredi", date:"04.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 2</b> + Nordic (assisté ou libre selon mardi) 3×5"}
+  ]},
+  {name:"Samedi", date:"05.09", slot:"Journée libre", tasks:[
+    {t:"<b>Piste</b> — 6 lignes 70-75 % · départs debout progressifs (pas de starting blocks)"},
+    {t:"Isométriques post-séance"}
+  ]},
+  {name:"Dimanche", date:"06.09", slot:"Journée libre", tasks:[
+    {t:"Récup active + mobilité 30 min"}
+  ]}
+ ]},
+ {num:"Semaine 4", dates:"7 → 13 sept", phase:"Phase 2 · Retour vitesse", p2:true, days:[
+  {name:"Lundi", date:"07.09", rest:true, slot:"Bureau Paris", tasks:[
+    {t:"<b>Ondes de choc — séance 4</b>", odc:true}
+  ]},
+  {name:"Mardi", date:"08.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 1</b> — charges lourdes 4×6 · Nordic libre 3×5"}
+  ]},
+  {name:"Mercredi", date:"09.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>Footing</b> 30 min + 4 lignes 75-80 %"}
+  ]},
+  {name:"Jeudi", date:"10.09", rest:true, slot:"Bureau Paris", tasks:[]},
+  {name:"Vendredi", date:"11.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR 2</b> — maintien des charges, qualité d'exécution"}
+  ]},
+  {name:"Samedi", date:"12.09", slot:"Journée libre", tasks:[
+    {t:"<b>Piste</b> — 4 lignes 80 % puis 2×40 m à 85 % si zéro douleur"},
+    {t:"Isométriques post-séance"}
+  ]},
+  {name:"Dimanche", date:"13.09", slot:"Journée libre", tasks:[
+    {t:"Récup active + mobilité — préparation valises 🇯🇵"}
+  ]}
+ ]},
+ {num:"Semaine 5", dates:"14 → 16 sept", phase:"Phase 2 · Consolidation", p2:true, days:[
+  {name:"Lundi", date:"14.09", rest:true, slot:"Bureau Paris", tasks:[
+    {t:"<b>Ondes de choc — séance 5</b> (dernière avant départ)", odc:true}
+  ]},
+  {name:"Mardi", date:"15.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>HSR final</b> — séance complète + Nordic 3×5 · rien de nouveau, rien de max"}
+  ]},
+  {name:"Mercredi", date:"16.09", slot:"Midi ou 17h30+", tasks:[
+    {t:"<b>Séance légère</b> — footing 25 min + 3 lignes 70 % relâchées · mobilité"},
+    {t:"✅ Bilan : douleur matinale ? Nordic toléré ? → noter pour la reprise d'octobre"}
+  ]}
+ ]}
+];
+
+const STORAGE_KEY = "reeduc-sprint-checks-aout-sept-2026";
+let checks = {};
+let memoryOnly = false;
+
+function taskId(w,d,t){ return `w${w}d${d}t${t}`; }
+
+function render(){
+  const root = document.getElementById("planning");
+  let html = "";
+  DATA.forEach((week,wi)=>{
+    html += `<section class="week">
+      <div class="week-head">
+        <span class="week-num">${week.num}</span>
+        <span class="week-dates">${week.dates}</span>
+        <span class="week-phase ${week.p2?'p2':''}">${week.phase}</span>
+      </div>`;
+    week.days.forEach((day,di)=>{
+      const restCls = day.rest ? "rest":"";
+      html += `<div class="day ${restCls}">
+        <div class="day-label">
+          <span class="day-name">${day.name}</span>
+          <span class="day-date">${day.date}</span>
+          <span class="day-slot">${day.slot}</span>
+        </div>
+        <div class="tasks">`;
+      if(day.tasks.length===0){
+        html += `<span class="rest-note">Repos complet — le tendon se construit les jours off.</span>`;
+      }
+      day.tasks.forEach((task,ti)=>{
+        const id = taskId(wi,di,ti);
+        const tag = task.odc ? `<span class="tag odc">ODC</span>` : "";
+        html += `<label class="task">
+          <input type="checkbox" data-id="${id}">
+          <span class="box"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6.5L4.5 9.5L10.5 2.5" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="task-text">${tag}${task.t}</span>
+        </label>`;
+      });
+      html += `</div></div>`;
+    });
+    html += `</section>`;
+  });
+  root.innerHTML = html;
+
+  document.querySelectorAll(".task input").forEach(cb=>{
+    const id = cb.dataset.id;
+    cb.checked = !!checks[id];
+    cb.addEventListener("change", async ()=>{
+      checks[id] = cb.checked;
+      if(!cb.checked) delete checks[id];
+      updateProgress();
+      await save();
+    });
+  });
+  updateProgress();
+}
+
+function updateProgress(){
+  const all = document.querySelectorAll(".task input");
+  const done = [...all].filter(c=>c.checked).length;
+  const total = all.length;
+  document.getElementById("count").textContent = done;
+  document.getElementById("total").textContent = total;
+  const pct = total ? (done/total*100) : 0;
+  document.getElementById("fill").style.width = pct + "%";
+  document.getElementById("runner").style.left = Math.min(pct, 97) + "%";
+}
+
+async function save(){
+  const badge = document.getElementById("saving");
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(checks));
+    badge.textContent = "Enregistré";
+  }catch(e){
+    badge.textContent = "Session seule";
+  }
+  badge.classList.add("show");
+  setTimeout(()=>badge.classList.remove("show"), 1200);
+}
+
+async function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) checks = JSON.parse(raw);
+  }catch(e){
+    checks = {};
+  }
+  render();
+}
+load();
+</script>
+</body>
+</html>
